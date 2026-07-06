@@ -153,4 +153,5 @@
     <string name="dialog_no_notification_alert_title">Notification Permission Not Granted</string>
     <string name="open_notification_settings">Goto notification settings</string>
     <string name="dont_show_again">Don\'t show again</string>
+    <string name="quick_settings_tile_label">Zerotier Fix</string>
 </resources>

@@ -418,10 +418,12 @@ public class ZeroTierOneService extends VpnService implements Runnable, EventLis
             }
         }
         joinNetwork(networkId);
+        preferences.edit().putBoolean("service_running", true).apply();
         return START_STICKY;
     }
 
     public void stopZeroTier() {
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("service_running", false).apply();
         if (this.svrSocket != null) {
             this.svrSocket.close();
             this.svrSocket = null;

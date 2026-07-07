@@ -1,0 +1,12 @@
+default_platform(:android)
+
+platform :android do
+  desc "Assemble APK"
+  lane :assemble do
+    gradle(
+      task: ENV["GRADLE_TASK"] || "assembleDebug",
+      project_dir: ENV["PROJECT_PATH"] || ".",
+      flags: "--no-daemon",
+    )
+  end
+end

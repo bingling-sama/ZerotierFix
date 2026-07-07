@@ -15,28 +15,55 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: 'recursive'
-      - uses: sparkfabrik/android-build-action@v1.5.0
+
+      - name: Set build variables
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "GRADLE_TASK=assembleDebug" >> $GITHUB_ENV
+            echo "OUTPUT_PATH=app-debug.apk" >> $GITHUB_ENV
+          else
+            echo "GRADLE_TASK=assembleRelease" >> $GITHUB_ENV
+            echo "OUTPUT_PATH=app-release.apk" >> $GITHUB_ENV
+          fi
+
+      - uses: ruby/setup-ruby@v1
         with:
-          project-path: .
-          output-path: app-debug.apk
-          fastlane-env: "debug"
-          ruby-version: "3.3.0"
+          ruby-version: "3.2"
+
+      - run: gem install multi_json
+      - run: gem install fastlane -v 2.213.0
+
+      - run: fastlane android assemble
+        env:
+          GRADLE_TASK: ${{ env.GRADLE_TASK }}
+          PROJECT_PATH: .
+
+      - name: Find and copy APK
+        shell: bash
+        run: |
+          APK=$(find app/build/outputs -name "*.apk" | head -1)
+          echo "Found APK: $APK"
+          cp "$APK" "${{ env.OUTPUT_PATH }}"
+
       - uses: actions/upload-artifact@v4
         if: github.event_name == 'pull_request'
-        name: Upload app APK
+        name: Upload debug APK
         with:
-          name: App bundle
-          path: app-debug.apk
-      # https://github.com/r0adkll/sign-android-release/issues/84#issuecomment-1889636075
+          name: Debug APK
+          path: ${{ env.OUTPUT_PATH }}
+
       - name: Setup build tool version variable
+        if: github.event_name != 'pull_request'
         shell: bash
         run: |
           BUILD_TOOL_VERSION=$(ls /usr/local/lib/android/sdk/build-tools/ | tail -n 1)
           echo "BUILD_TOOL_VERSION=$BUILD_TOOL_VERSION" >> $GITHUB_ENV
           echo Last build tool version is: $BUILD_TOOL_VERSION
+
       - uses: r0adkll/sign-android-release@v1
         if: github.event_name != 'pull_request'
-        name: Sign app APK
+        name: Sign release APK
         id: sign_app
         with:
           releaseDirectory: .
@@ -45,9 +72,10 @@ jobs:
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
         env:
           BUILD_TOOLS_VERSION: ${{ env.BUILD_TOOL_VERSION }}
+
       - uses: actions/upload-artifact@v4
         if: github.event_name != 'pull_request'
-        name: Upload signed app APK
+        name: Upload signed release APK
         with:
-          name: Signed app bundle
+          name: Signed release APK
           path: ${{steps.sign_app.outputs.signedReleaseFile}}

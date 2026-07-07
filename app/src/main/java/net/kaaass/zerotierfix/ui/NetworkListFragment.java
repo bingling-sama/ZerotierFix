@@ -7,11 +7,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.net.VpnService;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,6 +22,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -201,6 +206,12 @@ public class NetworkListFragment extends Fragment {
         // 初始化节点及服务状态
         this.eventBus.post(new NodeStatusRequestEvent());
         this.eventBus.post(new IsServiceRunningRequestEvent());
+
+        // 首次启动权限引导
+        var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+        if (!sharedPreferences.getBoolean(Constants.PREF_FIRST_LAUNCH_DONE, false)) {
+            showPermissionGuideDialog();
+        }
 
         // 检查通知权限
         var notificationManager = NotificationManagerCompat.from(requireContext());
@@ -439,6 +450,8 @@ public class NetworkListFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onNodeDestroyed(NodeDestroyedEvent event) {
         setOfflineState();
+        this.viewModel.doChangeConnectNetwork(null);
+        updateNetworkListAndNotify();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -633,6 +646,112 @@ public class NetworkListFragment extends Fragment {
                 .setCancelable(true);
 
         builder.create().show();
+    }
+
+    /**
+     * 首次启动权限引导对话框
+     */
+    private void showPermissionGuideDialog() {
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_permission_guide, null);
+
+        Button btnNotification = view.findViewById(R.id.btn_notification_settings);
+        Button btnBattery = view.findViewById(R.id.btn_battery_settings);
+        Button btnAutostart = view.findViewById(R.id.btn_autostart_settings);
+        CheckBox cbDontShow = view.findViewById(R.id.cb_dont_show_again);
+
+        Context context = requireContext();
+
+        btnNotification.setOnClickListener(v -> {
+            Intent intent = new Intent();
+            intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra("app_package", context.getPackageName());
+            intent.putExtra("app_uid", context.getApplicationInfo().uid);
+            intent.putExtra("android.provider.extra.APP_PACKAGE", context.getPackageName());
+            startActivity(intent);
+        });
+
+        btnBattery.setOnClickListener(v -> {
+            Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+            intent.setData(Uri.parse("package:" + context.getPackageName()));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try {
+                startActivity(intent);
+            } catch (Exception e) {
+                Intent fallback = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+                fallback.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(fallback);
+            }
+        });
+
+        btnAutostart.setOnClickListener(v -> openAutoStartSettings(context));
+
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setView(view)
+                .setTitle(R.string.permission_guide_title)
+                .setPositiveButton(R.string.permission_guide_done, (d, which) -> {
+                    if (cbDontShow.isChecked()) {
+                        PreferenceManager.getDefaultSharedPreferences(context)
+                                .edit()
+                                .putBoolean(Constants.PREF_FIRST_LAUNCH_DONE, true)
+                                .apply();
+                    }
+                })
+                .setCancelable(false)
+                .create();
+
+        dialog.show();
+    }
+
+    /**
+     * 尝试打开系统自启动管理页面。根据设备品牌选择不同 Intent。
+     */
+    private void openAutoStartSettings(Context context) {
+        Intent intent = new Intent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        String manufacturer = android.os.Build.MANUFACTURER.toLowerCase();
+        PackageManager pm = context.getPackageManager();
+
+        if (manufacturer.contains("xiaomi") || manufacturer.contains("redmi")) {
+            intent.setComponent(new ComponentName(
+                    "com.miui.securitycenter",
+                    "com.miui.permcenter.autostart.AutoStartManagementActivity"));
+        } else if (manufacturer.contains("huawei") || manufacturer.contains("honor")) {
+            intent.setComponent(new ComponentName(
+                    "com.huawei.systemmanager",
+                    "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity"));
+        } else if (manufacturer.contains("oppo") || manufacturer.contains("oneplus") || manufacturer.contains("realme")) {
+            intent.setComponent(new ComponentName(
+                    "com.coloros.safecenter",
+                    "com.coloros.safecenter.permission.startup.StartupAppListActivity"));
+        } else if (manufacturer.contains("vivo") || manufacturer.contains("iqoo")) {
+            intent.setComponent(new ComponentName(
+                    "com.vivo.permissionmanager",
+                    "com.vivo.permissionmanager.activity.BgStartUpManagerActivity"));
+        } else if (manufacturer.contains("samsung")) {
+            intent.setComponent(new ComponentName(
+                    "com.samsung.android.sm_cn",
+                    "com.samsung.android.sm.ui.ram.AutoRunActivity"));
+        }
+
+        if (pm.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
+            try {
+                startActivity(intent);
+                return;
+            } catch (Exception e) {
+                Log.d(TAG, "OEM autostart intent failed", e);
+            }
+        }
+
+        try {
+            Intent fallback = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            fallback.setData(Uri.parse("package:" + context.getPackageName()));
+            fallback.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(fallback);
+        } catch (Exception e) {
+            Toast.makeText(context, R.string.permission_autostart, Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**

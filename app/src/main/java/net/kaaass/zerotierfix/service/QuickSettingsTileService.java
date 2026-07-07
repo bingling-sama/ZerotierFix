@@ -11,9 +11,12 @@ import android.widget.Toast;
 
 import net.kaaass.zerotierfix.R;
 import net.kaaass.zerotierfix.ZerotierFixApplication;
+import net.kaaass.zerotierfix.events.ManualDisconnectEvent;
 import net.kaaass.zerotierfix.model.NetworkDao;
 import net.kaaass.zerotierfix.ui.NetworkListActivity;
 import net.kaaass.zerotierfix.util.DatabaseUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 public class QuickSettingsTileService extends TileService {
     private static final String TAG = "ZerotierFixTile";
@@ -34,8 +37,10 @@ public class QuickSettingsTileService extends TileService {
         boolean isRunning = prefs.getBoolean("service_running", false);
 
         if (isRunning) {
+            EventBus.getDefault().post(new ManualDisconnectEvent());
             Intent intent = new Intent(this, ZeroTierOneService.class);
             stopService(intent);
+            prefs.edit().putBoolean("service_running", false).apply();
             tile.setState(Tile.STATE_INACTIVE);
             tile.updateTile();
         } else {
@@ -45,7 +50,6 @@ public class QuickSettingsTileService extends TileService {
                 return;
             }
 
-            // VPN permission check — can't prompt from tile, launch app
             Intent prepare = VpnService.prepare(this);
             if (prepare != null) {
                 Intent launchIntent = new Intent(this, NetworkListActivity.class);

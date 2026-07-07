@@ -152,4 +152,14 @@
     <string name="open_notification_settings">打开通知设置</string>
     <string name="dont_show_again">不再提示</string>
     <string name="quick_settings_tile_label">Zerotier Fix</string>
+    <string name="permission_guide_title">首次启动权限设置</string>
+    <string name="permission_guide_desc">为保证 ZeroTier 在后台正常运行，需要授予以下权限。请逐项点击跳转设置。</string>
+    <string name="permission_notification">通知权限</string>
+    <string name="permission_notification_desc">在通知栏显示连接状态</string>
+    <string name="permission_battery">忽略电池优化</string>
+    <string name="permission_battery_desc">防止系统杀死后台服务</string>
+    <string name="permission_autostart">自启动权限</string>
+    <string name="permission_autostart_desc">允许应用自启动并在后台运行</string>
+    <string name="permission_open_settings">打开设置</string>
+    <string name="permission_guide_done">完成</string>
 </resources>

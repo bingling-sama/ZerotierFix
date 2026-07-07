@@ -28,4 +28,6 @@ public class Constants {
     public static final String CHANNEL_ID = "ZerotierFix";
 
     public static final String VPN_SESSION_NAME = "ZerotierFix";
+
+    public static final String PREF_FIRST_LAUNCH_DONE = "first_launch_done";
 }

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/permission_guide_desc"
+        android:textSize="14sp"
+        android:paddingBottom="16dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingVertical="8dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/permission_notification"
+                android:textStyle="bold"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/permission_notification_desc"
+                android:textSize="12sp"
+                android:textColor="@android:color/darker_gray" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_notification_settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/permission_open_settings"
+            android:textSize="12sp"
+            style="?android:attr/buttonBarButtonStyle" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingVertical="8dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/permission_battery"
+                android:textStyle="bold"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/permission_battery_desc"
+                android:textSize="12sp"
+                android:textColor="@android:color/darker_gray" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_battery_settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/permission_open_settings"
+            android:textSize="12sp"
+            style="?android:attr/buttonBarButtonStyle" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingVertical="8dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/permission_autostart"
+                android:textStyle="bold"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/permission_autostart_desc"
+                android:textSize="12sp"
+                android:textColor="@android:color/darker_gray" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_autostart_settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/permission_open_settings"
+            android:textSize="12sp"
+            style="?android:attr/buttonBarButtonStyle" />
+
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/cb_dont_show_again"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/dont_show_again"
+        android:paddingTop="12dp" />
+
+</LinearLayout>

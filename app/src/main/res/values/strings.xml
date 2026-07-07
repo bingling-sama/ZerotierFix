@@ -154,4 +154,14 @@
     <string name="open_notification_settings">Goto notification settings</string>
     <string name="dont_show_again">Don\'t show again</string>
     <string name="quick_settings_tile_label">Zerotier Fix</string>
+    <string name="permission_guide_title">Startup Permissions Setup</string>
+    <string name="permission_guide_desc">To keep ZeroTier running normally in the background, the following permissions need to be granted. Please tap each item to jump to settings.</string>
+    <string name="permission_notification">Notification permission</string>
+    <string name="permission_notification_desc">Display connection status in the notification bar</string>
+    <string name="permission_battery">Ignore battery optimization</string>
+    <string name="permission_battery_desc">Prevent the system from killing the background service</string>
+    <string name="permission_autostart">Auto-start permission</string>
+    <string name="permission_autostart_desc">Allow the app to auto-start and run in background</string>
+    <string name="permission_open_settings">Open settings</string>
+    <string name="permission_guide_done">Done</string>
 </resources>

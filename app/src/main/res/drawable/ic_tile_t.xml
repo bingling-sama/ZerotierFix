@@ -6,7 +6,12 @@
     android:tint="?attr/colorControlNormal">
   <path
       android:strokeColor="#FFFFFFFF"
-      android:strokeWidth="2"
+      android:strokeWidth="1.5"
       android:fillColor="#00000000"
-      android:pathData="M6,5h12M12,5v14" />
+      android:pathData="M6,5.5h12M12,5v15" />
+  <path
+      android:strokeColor="#FFFFFFFF"
+      android:strokeWidth="1.5"
+      android:fillColor="#00000000"
+      android:pathData="M12,9a4,4 0,1 1,0 8a4,4 0,1 1,0 -8" />
 </vector>
